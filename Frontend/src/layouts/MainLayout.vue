@@ -93,6 +93,11 @@ const linksList = [
     title: 'Registracija',
     icon: 'favorite',
     link: '#/registracija'
+  },
+  {
+    title: 'Rezervacije',
+    icon: 'favorite',
+    link: '#/rezervacije'
   }
 ]
 

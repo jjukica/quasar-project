@@ -43,6 +43,19 @@ app.get("/api/knjige", (req, res) => {
     });
 });
 
+app.get("/api/rezervirane_knjige", (req, res) => {
+    const query = `
+        SELECT rezervacija.id, rezervacija.datum_rez, knjiga.naslov, knjiga.autor, korisnik.ime, korisnik.prezime
+        FROM rezervacija
+        JOIN knjiga ON rezervacija.knjiga = knjiga.id
+        JOIN korisnik ON rezervacija.korisnik = korisnik.id
+    `;
+    connection.query(query, (error, results) => {
+        if (error) throw error;
+        res.send(results);
+    });
+});
+
 app.get("/api/knjige/:id", (req, res) => {
     const id = req.params.id;
     res.send("jedna knjiga " + id);

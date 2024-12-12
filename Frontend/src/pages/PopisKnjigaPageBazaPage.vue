@@ -1,11 +1,19 @@
 <template>
   <q-page padding>
     <div class="q-pa-md">
+      <!-- Checkbox to filter books with more than 0 'stanje' -->
+      <q-checkbox
+        v-model="filterStanje"
+        label="Filteriraj knjige s više od 0 'stanje'"
+        :true-value="true"
+        :false-value="false"
+      />
+      
       <q-table
         separator="horizontal"
         title="Popis knjiga"
         title-class="text-h4 text-bold text-red-9"
-        :rows="books"
+        :rows="filteredBooks"
         :columns="columns"
         row-key="id"
         table-class="text-black"
@@ -18,21 +26,15 @@
       >
         <template v-slot:header="props">
           <q-tr :props="props">
-            <q-th
-              v-for="col in props.cols"
-              :key="col.name"
-              :props="props"
-            >
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
               {{ col.label }}
             </q-th>
           </q-tr>
         </template>
         <template v-slot:body="props">
           <q-tr :props="props">
-            <q-td v-for="col in props.cols"
-              :key="col.name"
-              :props="props">
-              <span v-if="col.name !='slika' && col.name!='opis'" >
+            <q-td v-for="col in props.cols" :key="col.name" :props="props">
+              <span v-if="col.name !='slika' && col.name!='opis'">
                 {{ col.value }}
               </span>
               <div v-if="col.name=='opis'">
@@ -43,8 +45,8 @@
               <q-img
                 :src="props.row.slika"
                 v-if="col.name =='slika'"
-                size="100px" class="shadow-10">
-              </q-img>
+                size="100px" class="shadow-10"
+              ></q-img>
             </q-td>
           </q-tr>
         </template>
@@ -54,22 +56,22 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios';
 
 const style1 = {
-      fontSize:'18px'
-    };
+  fontSize: '18px'
+};
 const style2 = {
-      fontSize: '24px'
-    };
+  fontSize: '24px'
+};
 
 const columns = [
   {
-    name:'id',
-    label:'id',
-    field:'id',
-    align:'left',
+    name: 'id',
+    label: 'id',
+    field: 'id',
+    align: 'left',
     sortable: true,
     style: style1,
     headerStyle: style2
@@ -78,7 +80,7 @@ const columns = [
     name: 'naslov',
     label: 'naslov',
     field: 'naslov',
-    align:'left',
+    align: 'left',
     sortable: true,
     style: style1,
     headerStyle: style2
@@ -103,7 +105,7 @@ const columns = [
     name: 'slika',
     label: 'slika',
     field: 'slika',
-    align:'center',
+    align: 'center',
     style: style1,
     headerStyle: style2
   },
@@ -111,7 +113,7 @@ const columns = [
     name: 'stanje',
     label: 'stanje',
     field: 'stanje',
-    align:'center',
+    align: 'center',
     style: style1,
     headerStyle: style2
   }
@@ -119,37 +121,36 @@ const columns = [
 
 export default {
   setup () {
-    // Initialize books as a ref
     const books = ref([]);
-    const pagination = ref({
-      rowsPerPage: 10
-    });
+    const filterStanje = ref(false); // Track whether filter is applied
 
     // Method to load books from backend
     const loadBooks = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/knjige/');
-        // Update books using .value
-        books.value = response.data;  // Assuming your backend returns an array of books
-
-        console.log(books.value);  // Log the books data for debugging
-        if (books.value && books.value.length > 0) {
-          console.log("First Book ID: ", books.value[0].id);
-        }
-
+        books.value = response.data; // Assuming your backend returns an array of books
+        console.log(books.value);  // Log books data for debugging
       } catch (error) {
         console.error("Error fetching books:", error);
       }
     };
 
+    // Filtered books based on 'stanje' value and filter checkbox
+    const filteredBooks = computed(() => {
+      if (filterStanje.value) {
+        return books.value.filter(book => book.stanje > 0); // Filter for books with 'stanje' > 0
+      }
+      return books.value; // No filter applied, return all books
+    });
+
     // Load books when component is mounted
     loadBooks();
 
-    // Return necessary refs and methods
     return {
       columns,
       books,
-      pagination
+      filteredBooks,  // Use filteredBooks in the table
+      filterStanje     // Bind checkbox to this value
     };
   }
 };

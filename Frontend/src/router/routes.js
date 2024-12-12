@@ -11,6 +11,7 @@ const routes = [
       { path: '/lokacija', component: () => import('pages/LokacijaPage.vue') },
       { path: '/login', component: () => import('pages/LoginPage.vue') },
       { path: '/registracija', component: () => import('pages/RegistracijaPage.vue') },
+      { path: '/rezervacije', component: () => import('pages/RezervacijePage.vue') }
     ]
   },
 
