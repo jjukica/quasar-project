@@ -12,7 +12,7 @@
         />
 
         <q-toolbar-title>
-          Quasar App
+          Knjižnica
         </q-toolbar-title>
 
         <div>Quasar v{{ $q.version }}</div>
@@ -63,6 +63,11 @@ const linksList = [
     title: 'Popis knjiga',
     icon: 'book',
     link: '#/popisKnjiga'
+  },
+  {
+    title: 'Knjige baza',
+    icon: 'book',
+    link: '#/popisKnjigaBaza'
   },
   {
     title: 'Pretraživanje',
