@@ -29,6 +29,7 @@ const connection = mysql.createConnection({
 
 app.use(express.urlencoded({ extended: true }));
 
+// Connect to MySQL
 connection.connect(function (err) {
     if (err) throw err;
     console.log("Connected to MySQL!");
@@ -36,6 +37,7 @@ connection.connect(function (err) {
 
 // Define your API routes
 
+// Get all books
 app.get("/api/knjige", (req, res) => {
     connection.query("SELECT * FROM knjiga", (error, results) => {
         if (error) throw error;
@@ -43,6 +45,7 @@ app.get("/api/knjige", (req, res) => {
     });
 });
 
+// Get reserved books with additional user info
 app.get("/api/rezervirane_knjige", (req, res) => {
     const query = `
         SELECT rezervacija.id, rezervacija.datum_rez, knjiga.naslov, knjiga.autor, korisnik.ime, korisnik.prezime
@@ -56,11 +59,13 @@ app.get("/api/rezervirane_knjige", (req, res) => {
     });
 });
 
+// Get a single book by ID (This seems to be a placeholder)
 app.get("/api/knjige/:id", (req, res) => {
     const id = req.params.id;
     res.send("jedna knjiga " + id);
 });
 
+// Get books by author
 app.get("/api/knjige/:autor", (req, res) => {
     const autor = req.params.autor;  // Use the correct variable
     connection.query("SELECT * FROM knjiga WHERE autor LIKE ?", [`%${autor}%`], (error, results) => {
@@ -69,6 +74,25 @@ app.get("/api/knjige/:autor", (req, res) => {
     });
 });
 
+// Add a new book (this is the new route you'll need to add)
+app.post("/api/knjige", (req, res) => {
+    const { naslov, autor, opis, slika, stanje } = req.body;
+
+    // SQL query to insert a new book into the 'knjiga' table
+    const query = `INSERT INTO knjiga (naslov, autor, opis, slika, stanje) VALUES (?, ?, ?, ?, ?)`;
+    const values = [naslov, autor, opis, slika, stanje];
+
+    connection.query(query, values, (error, results) => {
+        if (error) {
+            console.error("Error inserting book:", error);
+            res.status(500).send("Error inserting book");
+            return;
+        }
+        res.status(201).send("Book inserted successfully");
+    });
+});
+
+// Reserve a book (already existing)
 app.post("/api/rezerv_knjige", (req, res) => {
     const data = req.body;
     const rezervacija = [[data.datum, data.id_knjiga, data.id_korisnik]];
